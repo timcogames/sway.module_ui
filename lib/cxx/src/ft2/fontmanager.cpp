@@ -23,17 +23,46 @@ void FontManager::initLibrary() {
   initialized_ = true;
 }
 
-void FontManager::freeLibrary() { FT_Done_FreeType(lib_); }
+void FontManager::freeLibrary() {
+  if (lib_ != nullptr) {
+    FT_Done_FreeType(lib_);
+    lib_ = nullptr;
+  }
+
+  initialized_ = false;
+}
 
 void FontManager::load(std::function<void()> fn, std::shared_ptr<rms::FetcherQueue> fetcherQueue,
     const std::string &name, const std::string &filepath) {
-  auto loader = std::make_shared<FaceLoader>(filepath.c_str());
-  loader->setCallback([this, fn, name](rms::FetchResponse *resp) -> void {
-    auto *response = static_cast<ObjectFetchResponse *>(resp);
-    auto object = response->serialize(lib_);
+  if (!fetcherQueue) {
+    return;
+  }
 
-    cache_.insert(std::make_pair(name, object));
-    fn();
+  std::weak_ptr<FontManager> weakSelf = shared_from_this();
+
+  auto loader = std::make_shared<FaceLoader>(filepath.c_str());
+  loader->setCallback([weakSelf, fn = std::move(fn), name](rms::FetchResponse *resp) -> void {
+    auto self = weakSelf.lock();
+    if (!self) {
+      return;
+    }
+
+    auto *response = static_cast<ObjectFetchResponse *>(resp);
+    if (!response) {
+      return;
+    }
+
+    auto object = response->serialize(self->lib_);
+    if (!object) {
+      return;
+    }
+
+    // self->cache_.insert_or_assign(std::make_pair(name, std::move(object)));
+    self->cache_[name] = std::move(object);
+
+    if (fn) {
+      fn();
+    }
   });
 
   fetcherQueue->add(loader);

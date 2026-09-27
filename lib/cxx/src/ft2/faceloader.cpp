@@ -18,4 +18,6 @@ void FaceLoader::fetch() {
 #endif
 }
 
+FaceLoader::~FaceLoader() { thread_.detach(); }
+
 }  // namespace sway::ui

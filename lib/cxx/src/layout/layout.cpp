@@ -11,7 +11,9 @@ Layout::Layout(BuilderPtr_t builder, Orientation orien)
     : LayoutItem()
     , Orientable(orien) {
   setMouseFilter(ois::MouseFilter::PASS);
+
   subscribe(this, "NodeAdded", EVENT_HANDLER(Layout, handleItemAdded));
+  subscribe(this, "NodeRemoved", EVENT_HANDLER(Layout, handleItemRemoved));
 }
 
 auto Layout::handleItemAdded(const core::EventTypedefs::UniquePtr_t &evt) -> bool {
@@ -30,6 +32,13 @@ auto Layout::handleItemAdded(const core::EventTypedefs::UniquePtr_t &evt) -> boo
   // }
 
   // recursiveUpdate(prevElement, currElement);
+  return true;
+}
+
+auto Layout::handleItemRemoved(const core::EventTypedefs::UniquePtr_t &evt) -> bool {
+  auto *nodeEventData = static_cast<core::NodeEventData *>(evt->getData());
+  Node::getChild<LayoutItem>(this, nodeEventData->nodeidx).reset();
+  std::cout << "Layout::handleItemRemoved" << std::endl;
   return true;
 }
 

@@ -12,7 +12,7 @@ namespace sway::ui {
  * @{
  */
 
-class FontManager {
+class FontManager : public std::enable_shared_from_this<FontManager> {
 public:
   using Ptr_t = FontManager *;
   using SharedPtr_t = std::shared_ptr<FontManager>;
@@ -22,6 +22,8 @@ public:
   /** @{ */
 
   FontManager();
+
+  FontManager(const FontManager &) = delete;
 
   ~FontManager();
 
@@ -40,6 +42,8 @@ public:
   auto find(const std::string &name) -> Font::SharedPtr_t;
 
   void removeFont();
+
+  FontManager &operator=(const FontManager &) = delete;
 
 private:
   FT_Library lib_;

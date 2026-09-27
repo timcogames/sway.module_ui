@@ -51,6 +51,8 @@ TEST(LayoutTest, build) {
   ASSERT_EQ(btn1->getSizePolicy().dimensions[0].policy, ui::SizePolicyType::MATCH_PARENT);
   ASSERT_EQ(btn1->getSizePolicy().dimensions[1].policy, ui::SizePolicyType::WRAP_CONTENT);
 
+  mainLayout->removeChildNode(btn1);
+
   auto btn2 = ui::Button::create(builder.get(), "btn2");
   btn2->setAlignment(math::Alignment::LEFT_TOP);
   btn2->setOffset(0.0F, 0.0F);
@@ -66,14 +68,14 @@ TEST(LayoutTest, build) {
   ASSERT_EQ(std::get<0>(btn2->getSizePolicy().dimensions[0].value), 150.0F);
   ASSERT_EQ(std::get<0>(btn2->getSizePolicy().dimensions[1].value), 70.0F);
 
-  std::cout << "btn1: " << Representation<core::NodeIndex>::get(btn1->getNodeIndex())
-            << " offset: " << btn1->getOffset().computed << std::endl;
+  // std::cout << "btn1: " << Representation<core::NodeIndex>::get(btn1->getNodeIndex())
+  //           << " offset: " << btn1->getOffset().computed << std::endl;
 
   std::cout << "btn2: " << Representation<core::NodeIndex>::get(btn2->getNodeIndex())
             << " offset: " << btn2->getOffset().computed << std::endl;
 
   mainLayout->removeChildNode(btn2);
-  mainLayout->removeChildNode(btn1);
+  // mainLayout->removeChildNode(btn1);
 
   builder->getRootWidget()->removeChildNode(mainLayout);
   builder->deinit();

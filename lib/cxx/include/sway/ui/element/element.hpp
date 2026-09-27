@@ -14,6 +14,8 @@ namespace sway::ui {
 
 class Measurable {
 public:
+  virtual ~Measurable() = default;
+
   void setSizePolicy(DimensionType dim, SizePolicyType policy) { sizePolicy_.setResizePolicy(dim, policy); }
 
   auto getSizePolicy() const -> SizePolicy { return sizePolicy_; }
@@ -52,7 +54,7 @@ public:
 
   Element();
 
-  virtual ~Element() = default;
+  virtual ~Element();
 
   /** @} */
 #pragma endregion  // region "Constructor(s) & Destructor"

@@ -17,7 +17,7 @@ public:
 
   LayoutItem();
 
-  virtual ~LayoutItem() = default;
+  virtual ~LayoutItem();
 
   /** @} */
 #pragma endregion

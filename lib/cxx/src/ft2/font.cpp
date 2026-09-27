@@ -11,15 +11,29 @@ Font::Font(std::shared_ptr<Face> face, math::size2i_t atlasSize, math::size2i_t 
     , atlasMarginSize_(atlasMarginSize) {}
 
 void Font::setHeight(u32_t height) {
+  if (!face_) {
+    return;
+  }
+
+  const auto faceData = face_->data();
+  if (!faceData) {
+    return;
+  }
+
   FT_Size_RequestRec req;
   req.type = FT_SIZE_REQUEST_TYPE_REAL_DIM;
   req.width = 0;
   req.height = (FT_Long)std::round(height << 6);
   req.horiResolution = 0;
   req.vertResolution = 0;
-  FT_Request_Size(face_->data(), &req);
+  FT_Request_Size(faceData, &req);
 
-  const auto &metrics = face_->data()->size->metrics;
+  const auto faceSize = faceData->size;
+  if (!faceSize) {
+    return;
+  }
+
+  const auto &metrics = faceSize->metrics;
   info_.height = height;
   info_.descender = metrics.descender >> 6;
   info_.ascender = metrics.ascender >> 6;
@@ -28,8 +42,13 @@ void Font::setHeight(u32_t height) {
   info_.maxAdvanceWidth = metrics.max_advance >> 6;
 }
 
-void Font::create(lpcstr_t charcodes, bool hinted, bool antialiased) {
-  for (auto i = 0; i < strlen(charcodes); i++) {
+void Font::create(lpcstr_t charcodes, [[maybe_unused]] bool hinted, [[maybe_unused]] bool antialiased) {
+  if (!face_) {
+    return;
+  }
+
+  const auto charcodeLen = strlen(charcodes);
+  for (auto i = 0; i < charcodeLen; i++) {
     if (hasCharInfo(charcodes[i])) {
       continue;
     }
@@ -55,6 +74,8 @@ void Font::create(lpcstr_t charcodes, bool hinted, bool antialiased) {
     cache_[glyphId.code] = info;
 
     maxSize_ = this->computeMaxSize_(bitmap, maxSize_);
+
+    FT_Done_Glyph(glyph);  // FT_Get_Glyph создаёт новый объект, который нужно освобождать.
   }
 }
 
@@ -66,7 +87,7 @@ auto Font::computeMaxSize_(FT_Bitmap *bitmap, math::size2i_t size) -> math::size
   };  // clang-format on
 }
 
-void Font::drawBitmap(FT_Bitmap *bitmap, Greymap data) {
+void Font::drawBitmap(FT_Bitmap *bitmap, Greymap &data) {
   for (auto y = 0; y < maxSize_.getH(); y++) {
     for (auto x = 0; x < maxSize_.getW(); x++) {
       if (x < 0 || y < 0 || x >= bitmap->width || y >= bitmap->rows) {
@@ -81,7 +102,7 @@ void Font::drawBitmap(FT_Bitmap *bitmap, Greymap data) {
 auto Font::getBitmapData(FontGlyphId sym) -> BitmapInfo {
   auto slot = FontGlyph::load(face_->data(), sym);
   if (!slot.has_value()) {
-    // Empty
+    return BitmapInfo(maxSize_);
   }
 
   FT_Glyph glyph;
@@ -95,10 +116,12 @@ auto Font::getBitmapData(FontGlyphId sym) -> BitmapInfo {
   bi.bitmapSize = math::size2i_t(bitmap->width, bitmap->rows);
   drawBitmap(bitmap, bi.data);
 
+  FT_Done_Glyph(glyph);  // FT_Get_Glyph создаёт новый объект, который нужно освобождать.
+
   return bi;
 }
 
-auto Font::getCharInfo(s8_t code) const -> std::optional<CharInfo> {
+auto Font::getCharInfo(u32_t code) const -> std::optional<CharInfo> {
   const auto &iter = cache_.find(code);
   if (iter != cache_.end()) {
     return std::make_optional<CharInfo>((*iter).second);
@@ -108,7 +131,7 @@ auto Font::getCharInfo(s8_t code) const -> std::optional<CharInfo> {
 }
 
 [[nodiscard]]
-auto Font::hasCharInfo(s8_t code) const -> bool {
+auto Font::hasCharInfo(u32_t code) const -> bool {
   return cache_.find(code) != cache_.end();
 }
 

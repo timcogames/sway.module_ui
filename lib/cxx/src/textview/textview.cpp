@@ -18,6 +18,8 @@ TextView::TextView(BuilderPtr_t builder, const std::string &text)
 #endif
 }
 
+TextView::~TextView() { std::cout << "~TextView" << std::endl; }
+
 void TextView::resize() {
   auto fnt = builder_->getPainter()->getDefaultFont();
   auto wdt = 0.0F;

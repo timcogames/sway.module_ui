@@ -27,7 +27,7 @@ public:
 
   TextView(BuilderPtr_t builder, const std::string &text);
 
-  virtual ~TextView() = default;
+  virtual ~TextView();
 
   /** @} */
 #pragma endregion

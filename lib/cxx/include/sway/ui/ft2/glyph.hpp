@@ -14,9 +14,9 @@ namespace sway::ui {
 
 struct FontGlyphId {
   u32_t idx;
-  s8_t code;
+  u32_t code;
 
-  FontGlyphId(FT_Face face, s8_t charcode)
+  FontGlyphId(FT_Face face, u32_t charcode)
       : idx(FT_Get_Char_Index(face, charcode))
       , code(charcode) {}
 };

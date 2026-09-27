@@ -27,12 +27,30 @@ public:
   /** @} */
 #pragma endregion
 
-  static void setColor(render::EffectTypedefs::Ptr_t eff, const math::col4f_t &col) {
-    eff->getShaderProgram()->setUniformCol4f("text_color", col);
+  static void setColor(render::EffectTypedefs::Ptr_t effect, const math::col4f_t &col) {
+    if (!effect) {
+      return;
+    }
+
+    auto shaderProgram = effect->getShaderProgram();
+    if (!shaderProgram) {
+      return;
+    }
+
+    shaderProgram->setUniformCol4f("text_color", col);
   }
 
-  static void setLayer(render::EffectTypedefs::Ptr_t eff, i32_t zindex) {
-    eff->getShaderProgram()->setUniform1f("zindex", zindex == 0 ? -0.999F : (f32_t)(zindex - 100) / 100);
+  static void setLayer(render::EffectTypedefs::Ptr_t effect, i32_t zindex) {
+    if (!effect) {
+      return;
+    }
+
+    auto shaderProgram = effect->getShaderProgram();
+    if (!shaderProgram) {
+      return;
+    }
+
+    shaderProgram->setUniform1f("zindex", zindex == 0 ? -0.999F : (f32_t)(zindex - 100) / 100);
   }
 
 private:

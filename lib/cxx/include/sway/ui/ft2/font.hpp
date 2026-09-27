@@ -27,6 +27,31 @@ public:
       : pixels_((u8_t *)malloc(NUM_GREYMAP_CMPTS * size.area() * sizeof(u8_t)))
       , stride_(size.getW()) {}
 
+  Greymap(const Greymap &) = delete;
+
+  Greymap &operator=(const Greymap &) = delete;
+
+  Greymap(Greymap &&other) noexcept
+      : pixels_(other.pixels_)
+      , stride_(other.stride_) {
+    other.pixels_ = nullptr;
+    other.stride_ = 0;
+  }
+
+  Greymap &operator=(Greymap &&other) noexcept {
+    if (this != &other) {
+      free(pixels_);
+
+      pixels_ = other.pixels_;
+      stride_ = other.stride_;
+
+      other.pixels_ = nullptr;
+      other.stride_ = 0;
+    }
+
+    return *this;
+  }
+
   ~Greymap() { free(pixels_); }
 
   auto at(u32_t x, u32_t y, u32_t cmpt) -> u8_t & {
@@ -150,11 +175,11 @@ public:
 
   auto getBitmapData(FontGlyphId sym) -> BitmapInfo;
 
-  void drawBitmap(FT_Bitmap *bitmap, Greymap data);
+  void drawBitmap(FT_Bitmap *bitmap, Greymap &data);
 
-  auto getCharInfo(s8_t code) const -> std::optional<CharInfo>;
+  auto getCharInfo(u32_t) const -> std::optional<CharInfo>;
 
-  auto hasCharInfo(s8_t code) const -> bool;
+  auto hasCharInfo(u32_t code) const -> bool;
 
   auto getCharMetrics(FT_GlyphSlot slot) -> CharInfo;
 
@@ -173,7 +198,7 @@ public:
 
   FT_Matrix matrix_;
   FT_Vector pen_;
-  std::unordered_map<s8_t, CharInfo> cache_;
+  std::unordered_map<u32_t, CharInfo> cache_;
 
   std::vector<FontGlyphId> glyphs_;
   math::size2i_t maxSize_;

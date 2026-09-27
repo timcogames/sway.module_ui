@@ -10,6 +10,8 @@ Element::Element()
     , eventFilter_(nullptr)
     , alignment_(math::Alignment::LEFT_TOP) {}
 
+Element::~Element() { std::cout << "~Element" << std::endl; }
+
 void Element::setPosition(ElementPosition pos) { position_ = pos; }
 
 auto Element::getPosition() const -> ElementPosition { return position_; }

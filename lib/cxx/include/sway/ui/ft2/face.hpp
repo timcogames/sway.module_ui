@@ -27,7 +27,13 @@ public:
 
   [[nodiscard]] auto data() const -> FT_Face { return face_; }
 
-  [[nodiscard]] auto getBitmap() const -> FT_Bitmap { return face_->glyph->bitmap; }
+  [[nodiscard]] auto getBitmap() const -> std::optional<FT_Bitmap> {
+    if (face_ == nullptr || face_->glyph == nullptr) {
+      return std::nullopt;
+    }
+
+    return std::make_optional<FT_Bitmap>(face_->glyph->bitmap);
+  }
 
 public:
   FT_Face face_;

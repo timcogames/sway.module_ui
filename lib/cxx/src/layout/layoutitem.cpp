@@ -5,6 +5,8 @@ namespace sway::ui {
 
 LayoutItem::LayoutItem() {}
 
+LayoutItem::~LayoutItem() { std::cout << "~LayoutItem" << std::endl; }
+
 void LayoutItem::recursiveUpdateItemOffsets(const math::point2f_t parentOffset) {
   auto elementOffset = math::point2f_t(
       parentOffset.getX() + getOffset().original.getX(), parentOffset.getY() + getOffset().original.getY());

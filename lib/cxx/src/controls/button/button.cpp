@@ -14,7 +14,7 @@ Button::Button(BuilderPtr_t builder, const std::string &text)
   setMouseFilter(ois::MouseFilter::PASS);
 }
 
-Button::~Button() {}
+Button::~Button() { std::cout << "~Button" << std::endl; }
 
 void Button::updateState() {
   const auto oldState = hovering_;
