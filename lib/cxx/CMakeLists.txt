@@ -31,7 +31,7 @@ include_directories("${GLOB_FT2_ROOT_DIR}/include/freetype2")
 include_directories("${MODULE_UI_LIST_DIR}/lib/cxx/include")
 include_directories("${MODULE_UI_LIST_DIR}/submodules/sway.module_gapi/api/cxx/include")
 include_directories("${MODULE_UI_LIST_DIR}/submodules/sway.module_core/lib/cxx/include")
-include_directories("${MODULE_UI_LIST_DIR}/submodules/sway.module_math/lib/cxx/include")
+include_directories("${MODULE_UI_LIST_DIR}/submodules/sway.module_math/lib/cpp/include")
 include_directories("${MODULE_UI_LIST_DIR}/submodules/sway.module_rms/lib/cxx/include")
 
 link_directories("${SYSTEM_X11_LIBRARY_DIRS}")

@@ -3,12 +3,12 @@
     {
       "name": "Mac",
       "includePath": [
-        "/opt/homebrew/Cellar/freetype/2.13.2/include",
+        "/opt/homebrew/Cellar/freetype/2.13.3/include",
         "${workspaceFolder}/lib/cxx/include",
         "${workspaceFolder}/submodules/sway.module_gapi/api/cxx/include",
         "${workspaceFolder}/submodules/sway.module_loader/api/cxx/include",
         "${workspaceFolder}/submodules/sway.module_core/lib/cxx/include",
-        "${workspaceFolder}/submodules/sway.module_math/lib/cxx/include",
+        "${workspaceFolder}/submodules/sway.module_math/lib/cpp/include",
         "${workspaceFolder}/submodules/sway.module_rms/lib/cxx/include",
         "/Users/apriori85/Documents/Third-party/emsdk/upstream/emscripten/system/include"
       ]
