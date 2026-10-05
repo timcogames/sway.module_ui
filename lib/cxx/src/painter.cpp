@@ -16,6 +16,10 @@ void Painter::initialize(Font::SharedPtr_t font, render::RenderSubsystemSharedPt
     render::MaterialManagerTypedefs::SharedPtr_t materialMngr, std::shared_ptr<rms::ImageResourceManager> imgResMngr,
     std::shared_ptr<rms::GLSLResourceManager> glslResMngr) {
 
+  std::fprintf(stderr, "[UIPainter::initialize] ENTER, font=%p, maxSize_={%d,%d}\n", (void *)font.get(),
+      font->maxSize_.getW(), font->maxSize_.getH());
+  std::fflush(stderr);
+
   font_ = font;
 
   subqueue_ = subsys->getQueueByPriority(core::toBase(core::Priority::Enum::LOW))
@@ -107,6 +111,9 @@ void Painter::initialize(Font::SharedPtr_t font, render::RenderSubsystemSharedPt
 
   createRectGeom(subsys, 0);
   createTextGeom(subsys, 1);
+
+  std::fprintf(stderr, "[UIPainter::initialize] EXIT\n");
+  std::fflush(stderr);
 }
 
 void Painter::createRectGeom(std::shared_ptr<render::RenderSubsystem> subsys, u32_t geomIdx) {
@@ -200,6 +207,10 @@ void Painter::drawText(const math::rect4f_t &rect, math::col4f_t col, lpcstr_t t
 }
 
 void Painter::onUpdateBatchChunks() {
+  if (!font_) {
+    return;
+  }
+
   nextRectIdx_ = 0;
   nextTextIdx_ = 0;
 
@@ -278,6 +289,10 @@ void Painter::onUpdateBatchChunks() {
 }
 
 void Painter::onUpdate(math::mat4f_t tfrm, math::mat4f_t proj, math::mat4f_t view, f32_t dtime) {
+  if (!font_) {
+    return;
+  }
+
   rectGeom_ = static_cast<render::GeomInstance<render::procedurals::prims::Quadrilateral<math::VertexColor>> *>(
       geomBuilder_->getGeometry(rectId_));
 

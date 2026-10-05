@@ -34,6 +34,9 @@ void FontManager::freeLibrary() {
 
 void FontManager::load(std::function<void()> fn, std::shared_ptr<rms::FetcherQueue> fetcherQueue,
     const std::string &name, const std::string &filepath) {
+  std::fprintf(stderr, "[load] this=%p, name='%s'\n", (void *)this, name.c_str());
+  std::fflush(stderr);
+
   if (!fetcherQueue) {
     return;
   }
@@ -42,25 +45,48 @@ void FontManager::load(std::function<void()> fn, std::shared_ptr<rms::FetcherQue
 
   auto loader = std::make_shared<FaceLoader>(filepath.c_str());
   loader->setCallback([weakSelf, fn = std::move(fn), name](rms::FetchResponse *resp) -> void {
+    std::fprintf(stderr, "[load callback] ENTER for '%s'\n", name.c_str());
+    std::fflush(stderr);
+
     auto self = weakSelf.lock();
+    std::fprintf(stderr, "[callback] self=%p, cache_=%p, size=%zu\n", (void *)self.get(), (void *)&self->cache_,
+        self->cache_.size());
+    std::fflush(stderr);
+
     if (!self) {
+      std::fprintf(stderr, "[load callback] weakSelf.lock() FAILED — FontManager destroyed\n");
+      std::fflush(stderr);
       return;
     }
 
+    std::fprintf(stderr, "[load callback] lock OK, serializing\n");
+    std::fflush(stderr);
+
     auto *response = static_cast<ObjectFetchResponse *>(resp);
     if (!response) {
+      std::fprintf(stderr, "[load callback] response is nullptr\n");
+      std::fflush(stderr);
       return;
     }
 
     auto object = response->serialize(self->lib_);
+    std::fprintf(stderr, "[load callback] serialized, object=%p\n", (void *)object.get());
+    std::fflush(stderr);
     if (!object) {
+      std::fprintf(stderr, "[load callback] object is nullptr\n");
+      std::fflush(stderr);
       return;
     }
 
     // self->cache_.insert_or_assign(std::make_pair(name, std::move(object)));
+    std::lock_guard<std::mutex> lock(self->cacheMutex_);
     self->cache_[name] = std::move(object);
+    std::fprintf(stderr, "[load callback] cache_ updated, size=%zu\n", self->cache_.size());
+    std::fflush(stderr);
 
     if (fn) {
+      std::fprintf(stderr, "[load callback] calling fn()\n");
+      std::fflush(stderr);
       fn();
     }
   });
@@ -69,10 +95,22 @@ void FontManager::load(std::function<void()> fn, std::shared_ptr<rms::FetcherQue
 }
 
 auto FontManager::addFont(const std::string &name, lpcstr_t symbols, int size, int marginSize) -> Font::SharedPtr_t {
+  std::fprintf(stderr, "[addFont] this=%p, cache size=%zu, name='%s'\n", (void *)this, cache_.size(), name.c_str());
+  std::fflush(stderr);
+
+  std::fprintf(stderr, "[addFont] ENTER, cache size=%zu, name='%s'\n", cache_.size(), name.c_str());
+  std::fflush(stderr);
+
+  std::lock_guard<std::mutex> lock(cacheMutex_);
   auto iter = cache_.find(name);
   if (iter == cache_.end()) {
+    std::fprintf(stderr, "[addFont] cache MISS for '%s'\n", name.c_str());
+    std::fflush(stderr);
     return nullptr;
   }
+
+  std::fprintf(stderr, "[addFont] cache HIT for '%s'\n", name.c_str());
+  std::fflush(stderr);
 
   auto texAtlasSize = math::size2i_t(size, size);
   auto texAtlasMarginSize = math::size2i_t(marginSize, marginSize);

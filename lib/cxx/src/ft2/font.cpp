@@ -47,16 +47,29 @@ void Font::create(lpcstr_t charcodes, [[maybe_unused]] bool hinted, [[maybe_unus
     return;
   }
 
+  const auto faceData = face_->data();
+  std::fprintf(stderr, "[Font::create] ENTER, faceData=%p\n", (void *)faceData);
+  std::fflush(stderr);
+  if (!faceData) {
+    return;
+  }
+
   const auto charcodeLen = strlen(charcodes);
+  std::fprintf(stderr, "[Font::create] charcodeLen=%zu\n", charcodeLen);
+  std::fflush(stderr);
+
   for (auto i = 0; i < charcodeLen; i++) {
+    std::fprintf(stderr, "[Font::create] i=%d, char='%c' (0x%02x)\n", i, charcodes[i], (unsigned char)charcodes[i]);
+    std::fflush(stderr);
+
     if (hasCharInfo(charcodes[i])) {
       continue;
     }
 
-    FontGlyphId glyphId(face_->data(), charcodes[i]);
+    FontGlyphId glyphId(faceData, charcodes[i]);
     glyphs_.push_back(glyphId);
 
-    auto slot = FontGlyph::load(face_->data(), glyphId);
+    auto slot = FontGlyph::load(faceData, glyphId);
     if (!slot.has_value()) {
       continue;
     }
@@ -76,15 +89,41 @@ void Font::create(lpcstr_t charcodes, [[maybe_unused]] bool hinted, [[maybe_unus
     maxSize_ = this->computeMaxSize_(bitmap, maxSize_);
 
     FT_Done_Glyph(glyph);  // FT_Get_Glyph создаёт новый объект, который нужно освобождать.
+
+    std::fprintf(stderr, "[Font::create] maxSize_={%d,%d}\n", maxSize_.getW(), maxSize_.getH());
+    std::fflush(stderr);
   }
+
+  std::fprintf(stderr, "[Font::create] EXIT\n");
+  std::fflush(stderr);
 }
 
 auto Font::computeMaxSize_(FT_Bitmap *bitmap, math::size2i_t size) -> math::size2i_t {
-  // clang-format off
-  return {
-    std::max<i32_t>(size.getW(), math::powerOf2(bitmap->width)),
-    std::max<i32_t>(size.getH(), math::powerOf2(bitmap->rows))
-  };  // clang-format on
+  // const auto w = bitmap->width;
+  // const auto h = bitmap->rows;
+  // const auto pw = math::powerOf2(w);
+  // const auto ph = math::powerOf2(h);
+
+  // std::fprintf(stderr, "[computeMaxSize_] bitmap={%u,%u}, powerOf2={%d,%d}, size={%d,%d}\n", w, h, pw, ph,
+  // size.getW(),
+  //     size.getH());
+  // std::fflush(stderr);
+
+  // return {std::max<i32_t>(size.getW(), pw), std::max<i32_t>(size.getH(), ph)};
+
+  constexpr i32_t MAX_ATLAS_SIZE = 2048;
+
+  const auto pw = bitmap->width > 0 ? math::powerOf2(bitmap->width) : 1;
+  const auto ph = bitmap->rows > 0 ? math::powerOf2(bitmap->rows) : 1;
+
+  return {std::min(std::max<i32_t>(size.getW(), pw), MAX_ATLAS_SIZE),
+      std::min(std::max<i32_t>(size.getH(), ph), MAX_ATLAS_SIZE)};
+
+  // // clang-format off
+  // return {
+  //   std::max<i32_t>(size.getW(), math::powerOf2(bitmap->width)),
+  //   std::max<i32_t>(size.getH(), math::powerOf2(bitmap->rows))
+  // };  // clang-format on
 }
 
 void Font::drawBitmap(FT_Bitmap *bitmap, Greymap &data) {

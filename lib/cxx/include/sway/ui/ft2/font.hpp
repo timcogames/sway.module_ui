@@ -25,7 +25,14 @@ public:
 
   Greymap(const math::size2i_t &size)
       : pixels_((u8_t *)malloc(NUM_GREYMAP_CMPTS * size.area() * sizeof(u8_t)))
-      , stride_(size.getW()) {}
+      , stride_(size.getW()) {
+    if (!pixels_) {
+      std::fprintf(stderr, "[Greymap] malloc FAILED for size %dx%d (%zu bytes)\n", size.getW(), size.getH(),
+          (size_t)(NUM_GREYMAP_CMPTS * size.area()));
+      std::fflush(stderr);
+      throw std::bad_alloc();
+    }
+  }
 
   Greymap(const Greymap &) = delete;
 

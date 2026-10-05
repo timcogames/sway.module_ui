@@ -49,6 +49,7 @@ private:
   FT_Library lib_;
   bool initialized_;
 
+  std::mutex cacheMutex_;
   std::unordered_map<std::string, std::shared_ptr<Face>> cache_;
   std::unordered_map<std::string, Font::SharedPtr_t> fonts_;
 };

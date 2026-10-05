@@ -37,6 +37,7 @@ public:
 
 public:
   FT_Face face_;
+  std::vector<u8_t> ownedData_;
 };
 
 /** @} */  // ingroup ft2

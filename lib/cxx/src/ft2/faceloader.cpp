@@ -7,17 +7,31 @@ FaceLoader::FaceLoader(const std::string &url)
 
 void FaceLoader::fetch() {
 #if EMSCRIPTEN_PLATFORM
-  thread_ = std::thread([this]() -> void {
-    auto callback = [this](rms::fetch_res_t fetch) {
-      response_ = new ObjectFetchResponse(fetch->data, fetch->numBytes);
-      fetching_.store(false);
-    };
+  // thread_ = std::thread([this]() -> void {
+  auto callback = [this](const u8_t *data, u32_t numBytes) {
+    std::fprintf(stderr, "[FaceLoader] callback ENTER, data=%p, numBytes=%u\n", (void *)data, numBytes);
+    std::fflush(stderr);
 
-    rms::RemoteFile::fetch(getUrl().c_str(), callback);
-  });
+    response_ = new ObjectFetchResponse(reinterpret_cast<lpcstr_t>(data), numBytes);
+
+    // std::fprintf(stderr, "[FaceLoader] response_=%p, numBytes=%u\n", (void *)response_, fetch->numBytes);
+    // std::fflush(stderr);
+
+    fetching_.store(false);
+
+    // std::fprintf(stderr, "[FaceLoader] response_=%p, numBytes=%u\n", (void *)response_, fetch->numBytes);
+    // std::fflush(stderr);
+  };
+
+  rms::RemoteFile::fetch(getUrl().c_str(), callback);
+  // });
 #endif
 }
 
-FaceLoader::~FaceLoader() { thread_.detach(); }
+FaceLoader::~FaceLoader() {
+  // if (thread_.joinable()) {
+  //   thread_.join();
+  // }
+}
 
 }  // namespace sway::ui
