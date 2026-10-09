@@ -5,7 +5,13 @@
 
 namespace sway::ui {
 
-DECLARE_ENUM(ProgressMode, FRACTION, PERCENTAGE);
+// clang-format off
+#define PROGRESS_MODE_LIST(ITEM) \
+  ITEM(FRACTION, 1) \
+  ITEM(PERCENTAGE, 2)
+// clang-format on
+
+DECLARE_ENUM_U32(ProgressMode, PROGRESS_MODE_LIST)
 
 }  // namespace sway::ui
 

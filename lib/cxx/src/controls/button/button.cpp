@@ -24,7 +24,7 @@ void Button::updateState() {
   }
 
   if (hovering_) {
-    this->setForegroundColor(COL4F_WHITE);
+    this->setForegroundColor(math::COL4F_WHITE);
     this->setBackgroundColor(COL4F_GRAY2);
   } else {
     this->setForegroundColor(COL4F_BEIGE);

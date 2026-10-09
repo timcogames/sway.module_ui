@@ -21,10 +21,9 @@ Face::Face(FT_Library lib, lpcstr_t filepath, u32_t idx)
 //   }
 // }
 
-Face::Face(FT_Library lib, lpcstr_t data, u32_t numBytes, u32_t idx)
-    : face_(nullptr)
-    , ownedData_(reinterpret_cast<const u8_t *>(data), reinterpret_cast<const u8_t *>(data) + numBytes) {
-  if (!CHECK_RESULT(FT_New_Memory_Face(lib, ownedData_.data(), ownedData_.size(), idx, &face_))) {
+Face::Face(FT_Library lib, std::vector<u8_t> data, u32_t idx)
+    : face_(nullptr) {
+  if (!CHECK_RESULT(FT_New_Memory_Face(lib, data.data(), data.size(), idx, &face_))) {
     throw std::runtime_error("Failed to load font face");
   }
 

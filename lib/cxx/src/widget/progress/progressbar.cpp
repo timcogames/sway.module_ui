@@ -27,7 +27,7 @@ void ProgressBar::update() {
       text += percentageString.str();
       break;
     }
-    case ProgressMode::Enum::NONE:
+    case ProgressMode::Enum::INITIAL:
     default:
       break;
   }

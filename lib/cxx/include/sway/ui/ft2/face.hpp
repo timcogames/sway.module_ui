@@ -18,7 +18,7 @@ public:
 
   Face(FT_Library lib, lpcstr_t filepath, u32_t idx);
 
-  Face(FT_Library lib, lpcstr_t data, u32_t numBytes, u32_t idx);
+  Face(FT_Library lib, std::vector<u8_t> data, u32_t idx);
 
   ~Face();
 
@@ -37,7 +37,6 @@ public:
 
 public:
   FT_Face face_;
-  std::vector<u8_t> ownedData_;
 };
 
 /** @} */  // ingroup ft2

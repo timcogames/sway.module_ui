@@ -10,7 +10,7 @@ namespace sway::ui {
 class InputEvent : public core::v2::Event {
 protected:
   explicit InputEvent(u32_t type, const core::v2::EventContext &context, u32_t modifiers)
-      : core::v2::Event(context, core::v2::EventData())
+      : core::v2::Event(context, /*core::v2::EventData()*/ NULL)
       , modifiers_(modifiers) {}
 
 public:

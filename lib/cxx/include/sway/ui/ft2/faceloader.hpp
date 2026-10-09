@@ -21,17 +21,10 @@ namespace sway::ui {
 // };
 
 struct ObjectFetchResponse : public rms::FetchResponse {
-  std::vector<u8_t> ownedData_;
+  ObjectFetchResponse(const u8_t *data, u32_t numBytes)
+      : rms::FetchResponse(data, numBytes) {}
 
-  ObjectFetchResponse(lpcstr_t data, u32_t numBytes)
-      : rms::FetchResponse(data, numBytes)
-      , ownedData_(reinterpret_cast<const u8_t *>(data), reinterpret_cast<const u8_t *>(data) + numBytes) {
-    this->data = reinterpret_cast<lpcstr_t>(ownedData_.data());
-  }
-
-  auto serialize(FT_Library lib) -> std::shared_ptr<Face> {
-    return std::make_shared<Face>(lib, this->data, this->numBytes, 0);
-  }
+  auto serialize(FT_Library lib) -> std::shared_ptr<Face> { return std::make_shared<Face>(lib, this->dataVector, 0); }
 };
 
 class FaceLoader : public rms::Fetcher {
