@@ -12,7 +12,7 @@ void FaceLoader::fetch() {
     std::fprintf(stderr, "[FaceLoader] callback ENTER, data=%p, numBytes=%u\n", (void *)data, numBytes);
     std::fflush(stderr);
 
-    response_ = new ObjectFetchResponse(data, numBytes);
+    response_ = std::make_unique<ObjectFetchResponse>(data, numBytes);
 
     // std::fprintf(stderr, "[FaceLoader] response_=%p, numBytes=%u\n", (void *)response_, fetch->numBytes);
     // std::fflush(stderr);
